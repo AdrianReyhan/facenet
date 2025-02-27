@@ -19,7 +19,7 @@ async function loadModels() {
         faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
         faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
         faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-        faceapi.nets.faceRecognitionNet.loadFromUri('/models') // Model untuk mengenali wajah
+        faceapi.nets.faceRecognitionNet.loadFromUri('/models') 
     ]);
 
     modelsLoaded = true;
@@ -39,9 +39,19 @@ async function saveFace() {
         .withFaceDescriptor();
 
     if (!detections) {
-        alert('⚠️ Wajah tidak terdeteksi!');
-        return;
+        console.log("SSD gagal, mencoba Tiny Face Detector...");
+        const detectionsTiny = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+        if (!detectionsTiny) {
+            alert('⚠️ Wajah tidak terdeteksi dari kedua model!');
+            return;
+        }
+
+        console.log("Tiny Face Detector berhasil mendeteksi wajah.");
     }
+
 
     const descriptor = detections.descriptor;
     const name = prompt("📝 Masukkan nama:");
